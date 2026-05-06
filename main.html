@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gourmet Gateway | Fine Dining & Delivery</title>
+    
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            gold: '#D4AF37',
+                            dark: '#1C1917', // stone-900
+                            light: '#FAFAF9', // stone-50
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar and premium utilities */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #FAFAF9; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #B4942D; }
+        
+        body { background-color: #FAFAF9; }
+        
+        .tab-content { display: none; opacity: 0; transition: opacity 0.4s ease-in-out; }
+        .tab-content.active { display: block; opacity: 1; animation: slideUp 0.5s ease-out forwards; }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .star.selected { color: #D4AF37; }
+        
+        /* Glassmorphism nav */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #D4AF37 0%, #B4942D 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-gold:hover {
+            box-shadow: 0 10px 20px -10px rgba(212, 175, 55, 0.7);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="text-stone-800 font-sans min-h-screen flex flex-col selection:bg-brand-gold selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center cursor-pointer group" onclick="switchTab('home')">
+                    <svg class="w-8 h-8 text-brand-gold mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    <span class="font-serif font-bold text-2xl tracking-wide text-brand-dark uppercase">Gourmet Gateway</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-10">
+                    <button onclick="switchTab('home')" class="text-sm tracking-widest uppercase font-medium text-stone-500 hover:text-brand-gold transition-colors duration-300">Home</button>
+                    <button onclick="switchTab('menu')" class="text-sm tracking-widest uppercase font-medium text-stone-500 hover:text-brand-gold transition-colors duration-300">Menu</button>
+                    <button onclick="switchTab('reservations')" class="text-sm tracking-widest uppercase font-medium text-stone-500 hover:text-brand-gold transition-colors duration-300">Reservations</button>
+                    <button onclick="switchTab('reviews')" class="text-sm tracking-widest uppercase font-medium text-stone-500 hover:text-brand-gold transition-colors duration-300">Reviews</button>
+                    <button onclick="switchTab('cart')" class="text-sm tracking-widest uppercase font-medium text-stone-500 hover:text-brand-gold transition-colors duration-300 flex items-center group">
+                        Cart 
+                        <span id="cart-badge" class="ml-2 bg-brand-gold text-white text-xs rounded-full h-5 w-5 flex items-center justify-center group-hover:bg-brand-dark transition-colors duration-300">0</span>
+                    </button>
+                    <button onclick="openAdminModal()" class="text-stone-300 hover:text-brand-gold transition-colors duration-300" title="Admin Access">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </button>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="switchTab('cart')" class="mr-6 text-stone-600 relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        <span id="cart-badge-mobile" class="absolute -top-2 -right-2 bg-brand-gold text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                    </button>
+                    <button id="mobile-menu-btn" class="text-stone-600 hover:text-brand-gold focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-stone-100 absolute w-full shadow-xl">
+            <div class="px-4 py-4 space-y-2">
+                <button onclick="switchTab('home'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm tracking-widest uppercase text-stone-600 hover:text-brand-gold hover:bg-stone-50 rounded-lg transition-colors">Home</button>
+                <button onclick="switchTab('menu'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm tracking-widest uppercase text-stone-600 hover:text-brand-gold hover:bg-stone-50 rounded-lg transition-colors">Menu</button>
+                <button onclick="switchTab('reservations'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm tracking-widest uppercase text-stone-600 hover:text-brand-gold hover:bg-stone-50 rounded-lg transition-colors">Reservations</button>
+                <button onclick="switchTab('reviews'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm tracking-widest uppercase text-stone-600 hover:text-brand-gold hover:bg-stone-50 rounded-lg transition-colors">Reviews</button>
+                <button onclick="openAdminModal(); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm tracking-widest uppercase text-stone-400 hover:text-brand-dark rounded-lg flex items-center gap-2 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Admin Access
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow w-full pb-16">
+
+        <!-- HOME TAB -->
+        <div id="tab-home" class="tab-content active">
+            <!-- Hero Section -->
+            <div class="relative w-full h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden mb-16">
+                <!-- Background Image -->
+                <div class="absolute inset-0 w-full h-full">
+                    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80" alt="Fine Dining" class="w-full h-full object-cover object-center scale-105 transform hover:scale-100 transition-transform duration-[10s] ease-out">
+                    <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
+                </div>
+                
+                <!-- Hero Content -->
+                <div class="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
+                    <span class="text-brand-gold tracking-[0.3em] uppercase text-sm md:text-base font-medium mb-4 block">Welcome to</span>
+                    <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-tight">
+                        A Symphony of <br><span class="text-brand-gold italic">Flavors</span>
+                    </h1>
+                    <p class="text-stone-300 text-lg md:text-xl font-light mb-10 max-w-2xl mx-auto leading-relaxed">
+                        Experience culinary excellence crafted by master chefs. Authentic Indian spices, exquisite presentation, and unforgettable taste delivered to your door.
+                    </p>
+                    <button onclick="switchTab('menu')" class="btn-gold px-10 py-4 rounded-none uppercase tracking-widest text-sm font-semibold border border-brand-gold">
+                        Discover the Menu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="text-center mb-16">
+                    <h2 class="font-serif text-3xl md:text-4xl text-brand-dark mb-4">The Gourmet Experience</h2>
+                    <div class="h-px w-24 bg-brand-gold mx-auto"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                    <div class="group cursor-default">
+                        <div class="w-20 h-20 mx-auto rounded-full border-px border-stone-200 flex items-center justify-center mb-6 group-hover:border-brand-gold transition-colors duration-500 bg-white shadow-sm">
+                            <svg class="w-8 h-8 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="font-serif text-2xl mb-3 text-brand-dark">Impeccable Timing</h3>
+                        <p class="text-stone-500 font-light leading-relaxed">Hot, fresh, and visually stunning dishes delivered to you with the utmost punctuality.</p>
+                    </div>
+                    <div class="group cursor-default">
+                        <div class="w-20 h-20 mx-auto rounded-full border-px border-stone-200 flex items-center justify-center mb-6 group-hover:border-brand-gold transition-colors duration-500 bg-white shadow-sm">
+                            <svg class="w-8 h-8 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="font-serif text-2xl mb-3 text-brand-dark">Sourced Globally</h3>
+                        <p class="text-stone-500 font-light leading-relaxed">We source rare, organic, and premium ingredients from trusted artisans worldwide.</p>
+                    </div>
+                    <div class="group cursor-default">
+                        <div class="w-20 h-20 mx-auto rounded-full border-px border-stone-200 flex items-center justify-center mb-6 group-hover:border-brand-gold transition-colors duration-500 bg-white shadow-sm">
+                            <svg class="w-8 h-8 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        </div>
+                        <h3 class="font-serif text-2xl mb-3 text-brand-dark">Award-Winning</h3>
+                        <p class="text-stone-500 font-light leading-relaxed">Recognized by critics and loved by patrons for our uncompromising dedication to taste.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU TAB -->
+        <div id="tab-menu" class="tab-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-16">
+                <span class="text-brand-gold tracking-[0.2em] uppercase text-sm font-medium mb-3 block">Epicurean Selection</span>
+                <h2 class="font-serif text-4xl md:text-5xl text-brand-dark mb-6">Our Signature Menu</h2>
+                <div class="h-px w-24 bg-brand-gold mx-auto"></div>
+            </div>
+            <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Menu items injected by JS -->
+            </div>
+        </div>
+
+        <!-- CART TAB -->
+        <div id="tab-cart" class="tab-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="mb-10">
+                <h2 class="font-serif text-4xl text-brand-dark mb-4">Your Selection</h2>
+                <div class="h-px w-16 bg-brand-gold"></div>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-12">
+                <!-- Cart Items List -->
+                <div class="lg:w-2/3" id="cart-container">
+                    <div id="cart-empty-msg" class="text-center py-20 bg-white border border-stone-100 shadow-sm rounded-none">
+                        <svg class="w-16 h-16 text-stone-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        <p class="font-serif text-2xl text-stone-500 mb-6">Your cart awaits your desires.</p>
+                        <button onclick="switchTab('menu')" class="btn-gold px-8 py-3 uppercase tracking-widest text-xs font-semibold">Peruse Menu</button>
+                    </div>
+                    <div id="cart-items" class="space-y-4">
+                        <!-- Cart items injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Checkout Form -->
+                <div class="lg:w-1/3">
+                    <div class="bg-brand-dark text-white p-8 rounded-none shadow-xl sticky top-28">
+                        <h3 class="font-serif text-2xl mb-6 border-b border-stone-700 pb-4">Order Summary</h3>
+                        <div class="space-y-3 mb-6 font-light">
+                            <div class="flex justify-between text-stone-400">
+                                <span>Subtotal</span>
+                                <span id="cart-subtotal" class="text-white">₹0.00</span>
+                            </div>
+                            <div class="flex justify-between text-stone-400">
+                                <span>Delivery Fee</span>
+                                <span class="text-white">₹50.00</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between font-serif text-2xl border-t border-stone-700 pt-6 mb-8 text-brand-gold">
+                            <span>Total</span>
+                            <span id="cart-total">₹0.00</span>
+                        </div>
+
+                        <form id="checkout-form" class="space-y-5 hidden">
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-stone-400 mb-2">Full Name</label>
+                                <input type="text" id="cust-name" required class="w-full px-4 py-3 bg-stone-800 border-none text-white focus:ring-1 focus:ring-brand-gold outline-none transition font-light placeholder-stone-600" placeholder="e.g. John Doe">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-stone-400 mb-2">Delivery Address</label>
+                                <textarea id="cust-address" required rows="2" class="w-full px-4 py-3 bg-stone-800 border-none text-white focus:ring-1 focus:ring-brand-gold outline-none transition font-light placeholder-stone-600" placeholder="Enter full address"></textarea>
+                            </div>
+                            <button type="submit" class="w-full btn-gold py-4 uppercase tracking-widest text-sm font-semibold mt-4">
+                                Confirm Order
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESERVATIONS TAB -->
+        <div id="tab-reservations" class="tab-content max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-12">
+                <span class="text-brand-gold tracking-[0.2em] uppercase text-sm font-medium mb-3 block">Join Us</span>
+                <h2 class="font-serif text-4xl md:text-5xl text-brand-dark mb-6">Book a Table</h2>
+                <div class="h-px w-24 bg-brand-gold mx-auto"></div>
+                <p class="text-stone-500 font-light mt-6 max-w-xl mx-auto">Reserve your spot for an unforgettable dining experience. For parties larger than 8, please contact us directly.</p>
+            </div>
+
+            <div class="bg-white border border-stone-100 shadow-sm p-8 md:p-12">
+                <form id="reservation-form" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Date</label>
+                            <input type="date" id="res-date" required class="w-full px-4 py-3 border border-stone-200 bg-stone-50 focus:bg-white focus:border-brand-gold focus:ring-0 outline-none transition font-light text-stone-700">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Time</label>
+                            <input type="time" id="res-time" required class="w-full px-4 py-3 border border-stone-200 bg-stone-50 focus:bg-white focus:border-brand-gold focus:ring-0 outline-none transition font-light text-stone-700">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Number of Guests</label>
+                            <select id="res-guests" required class="w-full px-4 py-3 border border-stone-200 bg-stone-50 focus:bg-white focus:border-brand-gold focus:ring-0 outline-none transition font-light text-stone-700 appearance-none">
+                                <option value="1">1 Guest</option>
+                                <option value="2" selected>2 Guests</option>
+                                <option value="3">3 Guests</option>
+                                <option value="4">4 Guests</option>
+                                <option value="5">5 Guests</option>
+                                <option value="6">6 Guests</option>
+                                <option value="7">7 Guests</option>
+                                <option value="8">8 Guests</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Phone Number</label>
+                            <input type="tel" id="res-phone" required placeholder="+91 98765 43210" class="w-full px-4 py-3 border border-stone-200 bg-stone-50 focus:bg-white focus:border-brand-gold focus:ring-0 outline-none transition font-light text-stone-700">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Full Name</label>
+                            <input type="text" id="res-name" required placeholder="John Doe" class="w-full px-4 py-3 border border-stone-200 bg-stone-50 focus:bg-white focus:border-brand-gold focus:ring-0 outline-none transition font-light text-stone-700">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Special Requests (Optional)</label>
+                            <textarea id="res-notes" rows="3" placeholder="Anniversary, dietary restrictions, etc." class="w-full px-4 py-3 border border-stone-200 bg-stone-50 focus:bg-white focus:border-brand-gold focus:ring-0 outline-none transition font-light resize-none text-stone-700"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-brand-dark text-white py-4 uppercase tracking-widest text-sm font-semibold hover:bg-stone-800 transition-colors mt-4">
+                        Request Reservation
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- REVIEWS TAB -->
+        <div id="tab-reviews" class="tab-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-16">
+                <span class="text-brand-gold tracking-[0.2em] uppercase text-sm font-medium mb-3 block">Testimonials</span>
+                <h2 class="font-serif text-4xl md:text-5xl text-brand-dark mb-6">Guest Experiences</h2>
+                <div class="h-px w-24 bg-brand-gold mx-auto"></div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-12">
+                <!-- Submit Review Form -->
+                <div class="lg:w-1/3">
+                    <div class="bg-white border border-stone-100 shadow-sm p-8 sticky top-28">
+                        <h3 class="font-serif text-2xl mb-6 text-brand-dark">Share Your Experience</h3>
+                        <form id="review-form" class="space-y-5">
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Your Name</label>
+                                <input type="text" id="rev-name" required class="w-full px-4 py-3 border border-stone-200 bg-stone-50 focus:bg-white focus:border-brand-gold focus:ring-0 outline-none transition font-light">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Rating</label>
+                                <div id="star-selector" class="flex space-x-2 text-2xl text-stone-300 cursor-pointer">
+                                    <span data-val="1" class="star hover:text-brand-gold transition-colors">★</span>
+                                    <span data-val="2" class="star hover:text-brand-gold transition-colors">★</span>
+                                    <span data-val="3" class="star hover:text-brand-gold transition-colors">★</span>
+                                    <span data-val="4" class="star hover:text-brand-gold transition-colors">★</span>
+                                    <span data-val="5" class="star hover:text-brand-gold transition-colors selected text-brand-gold">★</span>
+                                </div>
+                                <input type="hidden" id="rev-rating" value="5">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-stone-500 mb-2">Your Review</label>
+                                <textarea id="rev-text" required rows="4" class="w-full px-4 py-3 border border-stone-200 bg-stone-50 focus:bg-white focus:border-brand-gold focus:ring-0 outline-none transition font-light resize-none"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-brand-dark text-white py-4 uppercase tracking-widest text-sm font-semibold hover:bg-stone-800 transition-colors">
+                                Submit Review
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Reviews List -->
+                <div class="lg:w-2/3">
+                    <div id="reviews-list" class="space-y-6">
+                        <!-- Reviews injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN DASHBOARD TAB -->
+        <div id="tab-admin" class="tab-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="flex justify-between items-center mb-10 border-b border-stone-200 pb-6">
+                <div>
+                    <h2 class="font-serif text-3xl text-brand-dark mb-2">Admin Dashboard</h2>
+                    <p class="text-stone-500 text-sm tracking-widest uppercase">Live Order Management</p>
+                </div>
+                <button onclick="logoutAdmin()" class="px-6 py-2 border border-stone-300 text-stone-600 hover:bg-stone-100 transition-colors text-sm tracking-widest uppercase font-medium">Exit</button>
+            </div>
+
+            <div class="space-y-12">
+                <!-- Orders Table -->
+                <div class="bg-white border border-stone-200 shadow-sm overflow-hidden">
+                    <div class="bg-stone-50 px-6 py-4 border-b border-stone-200 flex justify-between items-center">
+                        <h3 class="font-serif text-xl text-brand-dark">Active Orders</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white border-b border-stone-200 text-stone-500 text-xs uppercase tracking-widest">
+                                    <th class="p-5 font-medium">Order ID</th>
+                                    <th class="p-5 font-medium">Customer Details</th>
+                                    <th class="p-5 font-medium">Order Items</th>
+                                    <th class="p-5 font-medium">Total</th>
+                                    <th class="p-5 font-medium">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-list" class="divide-y divide-stone-100 font-light">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reservations Table -->
+                <div class="bg-white border border-stone-200 shadow-sm overflow-hidden">
+                    <div class="bg-stone-50 px-6 py-4 border-b border-stone-200 flex justify-between items-center">
+                        <h3 class="font-serif text-xl text-brand-dark">Table Reservations</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white border-b border-stone-200 text-stone-500 text-xs uppercase tracking-widest">
+                                    <th class="p-5 font-medium">Res ID</th>
+                                    <th class="p-5 font-medium">Guest Details</th>
+                                    <th class="p-5 font-medium">Date & Time</th>
+                                    <th class="p-5 font-medium">Party Size</th>
+                                    <th class="p-5 font-medium">Notes</th>
+                                    <th class="p-5 font-medium">Booked On</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-reservations-list" class="divide-y divide-stone-100 font-light">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-dark text-stone-400 py-16 border-t border-stone-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left mb-12">
+                <!-- Brand -->
+                <div class="flex flex-col items-center md:items-start">
+                    <svg class="w-10 h-10 text-brand-gold mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    <div class="font-serif text-3xl text-white tracking-widest uppercase mb-4">Gourmet Gateway</div>
+                    <p class="font-light leading-relaxed">Elevating the art of dining. Delivering uncompromising quality and unforgettable flavors.</p>
+                </div>
+                <!-- Contact & Address -->
+                <div class="flex flex-col items-center md:items-start">
+                    <h4 class="text-white font-serif text-xl tracking-widest uppercase mb-6">Contact & Location</h4>
+                    <p class="font-light mb-2">123 Culinary Boulevard</p>
+                    <p class="font-light mb-2">Epicurean District, ND 201301</p>
+                    <p class="font-light mb-2 mt-4"><span class="text-brand-gold">T:</span> +91 98765 43210</p>
+                    <p class="font-light"><span class="text-brand-gold">E:</span> reservations@gourmetgateway.com</p>
+                </div>
+                <!-- Hours -->
+                <div class="flex flex-col items-center md:items-start">
+                    <h4 class="text-white font-serif text-xl tracking-widest uppercase mb-6">Hours of Operation</h4>
+                    <p class="font-light mb-2"><span class="text-white">Mon - Thu:</span> 5:00 PM - 10:30 PM</p>
+                    <p class="font-light mb-2"><span class="text-white">Fri - Sat:</span> 12:00 PM - 11:30 PM</p>
+                    <p class="font-light mb-2"><span class="text-white">Sunday:</span> 12:00 PM - 10:00 PM</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center border-t border-stone-800 pt-8">
+                <div class="flex space-x-6 mb-4 md:mb-0">
+                    <a href="#" class="hover:text-brand-gold transition-colors text-sm tracking-widest uppercase">Instagram</a>
+                    <a href="#" class="hover:text-brand-gold transition-colors text-sm tracking-widest uppercase">Facebook</a>
+                    <button onclick="switchTab('reservations')" class="hover:text-brand-gold transition-colors text-sm tracking-widest uppercase focus:outline-none">Reservations</button>
+                </div>
+                <p class="text-xs tracking-widest uppercase text-stone-600">© 2026 Gourmet Gateway. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals & Toasts -->
+    
+    <!-- Admin Login Modal -->
+    <div id="admin-modal" class="fixed inset-0 bg-brand-dark/90 z-50 hidden flex items-center justify-center backdrop-blur-md">
+        <div class="bg-white p-10 max-w-md w-full mx-4 shadow-2xl transform transition-all scale-95 opacity-0 border-t-4 border-brand-gold" id="admin-modal-content">
+            <div class="text-center mb-8">
+                <svg class="w-12 h-12 text-brand-gold mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <h3 class="font-serif text-3xl text-brand-dark mb-2">Restricted Area</h3>
+                <p class="text-stone-500 text-sm font-light">Authorized personnel only. (Hint: 9999)</p>
+            </div>
+            
+            <input type="password" id="admin-pin" class="w-full px-4 py-4 border border-stone-200 bg-stone-50 focus:bg-white mb-6 text-center text-2xl tracking-[1em] focus:border-brand-gold focus:ring-0 outline-none font-serif" placeholder="••••">
+            
+            <div class="flex gap-4">
+                <button onclick="closeAdminModal()" class="w-1/2 py-3 border border-stone-300 text-stone-600 text-sm uppercase tracking-widest font-semibold hover:bg-stone-50 transition-colors">Cancel</button>
+                <button onclick="verifyAdmin()" class="w-1/2 bg-brand-dark text-white text-sm uppercase tracking-widest font-semibold hover:bg-stone-800 transition-colors">Authenticate</button>
+            </div>
+            <p id="admin-error" class="text-red-500 text-xs tracking-widest uppercase text-center mt-4 hidden">Authentication Failed.</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-brand-dark border border-stone-700 text-white px-8 py-4 shadow-2xl transition-all duration-400 translate-y-24 opacity-0 z-50 flex items-center gap-3">
+        <span id="toast-icon" class="text-brand-gold">✨</span>
+        <span id="toast-msg" class="font-light tracking-wide text-sm">Action successful</span>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- Data Models (28 Items) ---
+        const menuItems = [
+            { id: 'm1', name: 'Classic Masala Dosa', price: 180.00, image: 'https://aroundtheyum.com/wp-content/uploads/2025/06/masala-dosa-recipe-.jpg', desc: 'A South Indian masterpiece. A paper-thin, crispy fermented rice and lentil crêpe wrapped around a mildly spiced, aromatic potato and onion mash. Served with fresh coconut chutney and piping hot, tangy sambar.' },
+            { id: 'm2', name: 'Steamed Idli & Vada', price: 150.00, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaBE557QtFeRDce6qeY-uAzohBv0D2XQTlkA&s', desc: 'The ultimate comfort breakfast. Three cloud-like steamed rice cakes (Idli) paired with a crispy, golden lentil doughnut (Medu Vada). Accompanied by a trio of tomato, coconut, and mint chutneys.' },
+            { id: 'm3', name: 'Delhi Butter Chicken', price: 380.00, image: 'https://images.unsplash.com/photo-1603894584373-5ac82b6ae398?auto=format&fit=crop&w=800&q=80', desc: 'A rich and velvety North Indian classic. Tender, charcoal-smoked chicken tikka pieces simmered in a luscious tomato and cashew gravy, finished with a generous swirl of fresh cream and dried fenugreek leaves.' },
+            { id: 'm4', name: 'Hyderabadi Dum Biryani', price: 420.00, image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80', desc: 'A royal feast for the senses. Long-grain basmati rice layered with succulent, spice-marinated chicken, slow-cooked in a sealed pot (dum) to lock in the saffron, caramelized onions, and whole aromatic spices. Served with cooling cucumber raita.' },
+            { id: 'm5', name: 'Paneer Tikka Masala', price: 350.00, image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=800&q=80', desc: 'A vegetarian favorite. Chunky, charred cubes of cottage cheese marinated in yogurt and spices, tossed in a robust, spiced onion-tomato masala with crunchy bell peppers and a hint of smokiness.' },
+            { id: 'm6', name: 'Dal Makhani', price: 280.00, image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80', desc: 'A deeply comforting lentil dish. Whole black urad lentils and kidney beans slow-cooked overnight over a tandoor flame, enriched with churned white butter and fresh cream for an unbelievably luscious texture.' },
+            { id: 'm7', name: 'Punjabi Samosa Chaat', price: 120.00, image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80', desc: 'A burst of street-food flavors. Crushed, flaky samosas stuffed with spiced potatoes and peas, topped with a warm white pea curry, sweetened yogurt, tangy tamarind chutney, spicy green chutney, and crispy sev.' },
+            { id: 'm8', name: 'Garlic Butter Naan', price: 80.00, image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80', desc: 'The perfect curry companion. Soft, leavened flatbread slapped onto the walls of a traditional clay oven until beautifully blistered, then lavishly brushed with melted butter and topped with minced garlic and fresh coriander.' },
+            { id: 'm9', name: 'Shahi Gulab Jamun', price: 140.00, image: 'https://images.unsplash.com/photo-1593179357196-ea11a2e7c119?auto=format&fit=crop&w=800&q=80', desc: 'A decadent finale. Soft, melt-in-the-mouth khoya (reduced milk) dumplings, deep-fried to a deep golden brown and soaked in a warm, fragrant sugar syrup infused with green cardamom and rose water.' },
+            { id: 'm10', name: 'Tandoori Lamb Chops', price: 650.00, image: 'https://images.unsplash.com/photo-1544025162-831e512411aa?auto=format&fit=crop&w=800&q=80', desc: 'Succulent premium lamb chops, marinated overnight in hung curd, raw papaya, and a secret blend of ground spices. Roasted to smoky perfection in our traditional clay oven and served with mint sauce.' },
+            { id: 'm11', name: 'Palak Paneer', price: 320.00, image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc0?auto=format&fit=crop&w=800&q=80', desc: 'A vibrantly green, nutrient-rich curry made from puréed spinach, tempered with garlic, cumin, and dried red chilies. Studded with soft, fresh cottage cheese cubes and finished with a touch of fresh cream.' },
+            { id: 'm12', name: 'Malabar Prawn Curry', price: 550.00, image: 'https://images.unsplash.com/photo-1559742811-822873691df8?auto=format&fit=crop&w=800&q=80', desc: 'A coastal delicacy from Kerala. Jumbo prawns simmered in a fragrant, golden coconut milk gravy infused with fresh curry leaves, mustard seeds, and a hint of tart tamarind.' },
+            { id: 'm13', name: 'Lachha Paratha', price: 70.00, image: 'https://images.unsplash.com/photo-1601314002592-b8734bca6604?auto=format&fit=crop&w=800&q=80', desc: 'A multi-layered, flaky whole wheat flatbread. Cooked on a hot griddle with pure ghee until crispy on the outside and wonderfully soft on the inside. The ultimate bread to mop up rich gravies.' },
+            { id: 'm14', name: 'Rasmalai', price: 160.00, image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80', desc: 'A majestic Bengali dessert. Soft, spongy cottage cheese discs soaked in sweetened, saffron-infused thickened milk, garnished with slivers of pistachios and almonds.' },
+            { id: 'm15', name: 'Mango Lassi', price: 120.00, image: 'https://images.unsplash.com/photo-1546171753-97d7676e4602?auto=format&fit=crop&w=800&q=80', desc: 'A refreshing, creamy yogurt-based drink blended with the sweet pulp of Alphonso mangoes and a touch of cardamom. The perfect cooling accompaniment to a spicy Indian meal.' },
+            { id: 'm16', name: 'Kashmiri Rogan Josh', price: 550.00, image: 'https://images.unsplash.com/photo-1582562124811-c09040d0a907?auto=format&fit=crop&w=800&q=80', desc: 'A signature dish of Kashmir. Tender pieces of slow-cooked lamb braised in a robust gravy flavored with garlic, ginger, and aromatic spices like fennel and Kashmiri red chilies.' },
+            { id: 'm17', name: 'Delhi Chole Bhature', price: 220.00, image: 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&w=800&q=80', desc: 'A North Indian indulgence. Spicy, tangy chickpea curry simmered with a blend of roasted spices, served alongside two large, fluffy, deep-fried leavened breads.' },
+            { id: 'm18', name: 'Shahi Malai Kofta', price: 340.00, image: 'https://images.unsplash.com/photo-1546833998-877b37c2e5c6?auto=format&fit=crop&w=800&q=80', desc: 'Melt-in-the-mouth potato and paneer dumplings stuffed with dry fruits, gently simmered in a rich, creamy, and mildly sweet cashew-based golden gravy.' },
+            { id: 'm19', name: 'Tandoori Chicken Tikka', price: 320.00, image: 'https://images.unsplash.com/photo-1599487405609-9b7e7166113b?auto=format&fit=crop&w=800&q=80', desc: 'Boneless chicken chunks marinated overnight in spiced yogurt, threaded onto skewers, and charred to perfection in a traditional clay oven. Served with mint chutney.' },
+            { id: 'm20', name: 'Goan Fish Curry', price: 480.00, image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80', desc: 'A coastal classic. Fresh catch of the day simmered in a vibrant, tangy coconut broth laced with Kokum, mustard seeds, and fiery Kashmiri chilies.' },
+            { id: 'm21', name: 'Gajar Ka Halwa', price: 150.00, image: 'https://images.unsplash.com/photo-1605807646983-377bc5a76493?auto=format&fit=crop&w=800&q=80', desc: 'A heartwarming winter delicacy. Freshly grated red carrots slow-cooked in rich whole milk and ghee, generously studded with roasted cashews, almonds, and raisins.' },
+            { id: 'm22', name: 'Kesari Pista Kulfi', price: 130.00, image: 'https://images.unsplash.com/photo-1563805042-7684c8e9e9cb?auto=format&fit=crop&w=800&q=80', desc: 'Traditional Indian unchurned ice cream. Dense, creamy, and infused with saffron strands and crushed pistachios, served chilled on a stick or in an earthen pot.' },
+            { id: 'm23', name: 'Crispy Jalebi with Rabdi', price: 160.00, image: 'https://images.unsplash.com/photo-1628245842186-35367b93a02a?auto=format&fit=crop&w=800&q=80', desc: 'The ultimate sweet pairing. Golden, spiral-shaped deep-fried batter soaked in warm sugar syrup, served alongside chilled, thickened, and lightly sweetened milk (Rabdi).' },
+            { id: 'm24', name: 'Tandoori Paneer Pizza', price: 350.00, image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80', desc: 'A fusion delight. Thin crust artisan pizza topped with our signature makhani sauce, marinated paneer tikka cubes, mozzarella, red onions, and fresh cilantro.' },
+            { id: 'm25', name: 'Creamy Makhani Penne', price: 280.00, image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=800&q=80', desc: 'Italian classic meets Indian royalty. Penne pasta tossed in a rich, velvety tomato and cashew makhani sauce, garnished with fresh cream, kasuri methi, and parmesan.' },
+            { id: 'm26', name: 'Crispy Paneer Burger', price: 190.00, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80', desc: 'A thick, crunchy paneer patty layered with spicy tandoori mayo, crisp lettuce, fresh tomatoes, and red onions, served in a butter-toasted sesame brioche bun.' },
+            { id: 'm27', name: 'Gunpowder Masala Fries', price: 120.00, image: 'https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=800&q=80', desc: 'Crispy golden French fries tossed generously in a fiery South Indian gunpowder (podi) spice mix. Served with a cooling garlic-herb and mint dip.' },
+            { id: 'm28', name: 'Classic Veg Manchurian', price: 240.00, image: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80', desc: 'The undisputed king of Indo-Chinese street food. Deep-fried mixed vegetable dumplings wok-tossed in a dark, spicy, and tangy soy-garlic sauce with fresh spring onions.' }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('gg_cart')) || {}; // { itemId: { itemData, quantity } }
+        let isAdmin = false;
+
+        // --- In-Memory Database (Persisted via Local Storage) ---
+        let ordersDB = JSON.parse(localStorage.getItem('gg_orders')) || [];
+        let reviewsDB = JSON.parse(localStorage.getItem('gg_reviews')) || [
+            { id: 'r1', author: 'Priya S.', rating: 5, text: 'Absolutely fantastic! The Butter Chicken was perfectly spiced and the naan was so soft. Highly recommend!', timestamp: Date.now() - 86400000 },
+            { id: 'r2', author: 'Rahul M.', rating: 4, text: 'Great ambiance and even better food. The Biryani is a must-try.', timestamp: Date.now() - 172800000 }
+        ];
+        let reservationsDB = JSON.parse(localStorage.getItem('gg_reservations')) || [];
+
+        // --- Initialization ---
+        function initApp() {
+            renderMenu();
+            updateCartUI(); // Restore cart from local storage
+            attachEventListeners();
+            
+            // Load initial mock data
+            renderReviewsList(reviewsDB);
+            renderAdminOrders(ordersDB);
+            renderAdminReservations(reservationsDB);
+        }
+
+        // --- UI Rendering ---
+        function renderMenu() {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = menuItems.map(item => `
+                <div class="bg-white group overflow-hidden border border-stone-100 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-full">
+                    <div class="relative h-64 overflow-hidden bg-stone-100">
+                        <img src="${item.image}" alt="${item.name}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="absolute bottom-4 right-4 bg-brand-dark text-brand-gold px-4 py-2 font-serif text-xl shadow-lg transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                            ₹${item.price.toFixed(2)}
+                        </div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow relative">
+                        <!-- Default price display when not hovering -->
+                        <div class="absolute -top-6 right-6 bg-white border border-stone-100 text-brand-dark px-4 py-1.5 font-serif text-lg shadow-sm group-hover:opacity-0 transition-opacity duration-300">
+                            ₹${item.price.toFixed(2)}
+                        </div>
+                        
+                        <h3 class="font-serif text-2xl text-brand-dark mb-3">${item.name}</h3>
+                        <p class="text-stone-500 text-sm font-light leading-relaxed flex-grow mb-8">${item.desc}</p>
+                        
+                        <button onclick="addToCart('${item.id}')" class="w-full py-4 border border-stone-200 text-stone-600 uppercase tracking-widest text-xs font-semibold hover:bg-brand-dark hover:text-brand-gold hover:border-brand-dark transition-colors duration-300">
+                            Add to Order
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCartUI() {
+            localStorage.setItem('gg_cart', JSON.stringify(cart)); // Save to local storage
+            
+            const itemsList = document.getElementById('cart-items');
+            const emptyMsg = document.getElementById('cart-empty-msg');
+            const checkoutForm = document.getElementById('checkout-form');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const totalEl = document.getElementById('cart-total');
+            
+            const cartVals = Object.values(cart);
+            let totalQty = 0;
+            let subtotal = 0;
+
+            if (cartVals.length === 0) {
+                emptyMsg.style.display = 'block';
+                itemsList.innerHTML = '';
+                checkoutForm.classList.add('hidden');
+                subtotalEl.innerText = '₹0.00';
+                totalEl.innerText = '₹0.00';
+            } else {
+                emptyMsg.style.display = 'none';
+                checkoutForm.classList.remove('hidden');
+                
+                itemsList.innerHTML = cartVals.map(c => {
+                    totalQty += c.qty;
+                    const itemTotal = c.item.price * c.qty;
+                    subtotal += itemTotal;
+                    return `
+                    <div class="flex items-center justify-between p-4 bg-white border border-stone-100 hover:shadow-md transition-shadow duration-300">
+                        <div class="flex items-center gap-6">
+                            <img src="${c.item.image}" alt="${c.item.name}" class="w-20 h-20 object-cover border border-stone-100">
+                            <div>
+                                <h4 class="font-serif text-xl text-brand-dark mb-1">${c.item.name}</h4>
+                                <div class="text-xs uppercase tracking-widest text-stone-500">₹${c.item.price.toFixed(2)} &times; ${c.qty}</div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-3">
+                            <span class="font-serif text-xl text-brand-dark">₹${itemTotal.toFixed(2)}</span>
+                            <button onclick="removeFromCart('${c.item.id}')" class="text-xs tracking-widest uppercase text-stone-400 hover:text-red-500 transition-colors" title="Remove">Remove</button>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                subtotalEl.innerText = `₹${subtotal.toFixed(2)}`;
+                totalEl.innerText = `₹${(subtotal + 50.00).toFixed(2)}`;
+            }
+
+            document.getElementById('cart-badge').innerText = totalQty;
+            document.getElementById('cart-badge-mobile').innerText = totalQty;
+        }
+
+        function renderReviewsList(reviews) {
+            const list = document.getElementById('reviews-list');
+            if (reviews.length === 0) {
+                list.innerHTML = `<div class="text-center py-20 bg-white border border-stone-100 text-stone-400 font-serif text-xl">Be the first to share your experience.</div>`;
+                return;
+            }
+
+            list.innerHTML = reviews.map(r => {
+                const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                const date = new Date(r.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+                return `
+                <div class="bg-white p-8 border border-stone-100 shadow-sm relative">
+                    <div class="absolute top-8 right-8 text-brand-gold text-2xl tracking-widest">${stars}</div>
+                    <div class="mb-4">
+                        <div class="font-serif text-2xl text-brand-dark">${r.author}</div>
+                        <div class="text-xs uppercase tracking-widest text-stone-400 mt-1">${date}</div>
+                    </div>
+                    <p class="text-stone-600 font-light leading-relaxed italic">"${r.text}"</p>
+                </div>`;
+            }).join('');
+        }
+
+        function renderAdminOrders(orders) {
+            const tbody = document.getElementById('admin-orders-list');
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-stone-500 font-serif text-xl">No active orders.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(o => {
+                const date = new Date(o.timestamp);
+                const timeStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                
+                let itemsListStr = "N/A";
+                try {
+                    const itemsObj = JSON.parse(o.items);
+                    itemsListStr = Object.values(itemsObj).map(i => `${i.qty}x ${i.item.name}`).join(', ');
+                } catch(e) {}
+
+                return `
+                <tr class="hover:bg-stone-50 transition-colors duration-200 border-b border-stone-100">
+                    <td class="p-5 text-xs font-mono text-stone-400 tracking-wider">#${o.id.substring(0,6)}</td>
+                    <td class="p-5">
+                        <div class="font-medium text-brand-dark">${o.customerName}</div>
+                        <div class="text-xs text-stone-500 max-w-[200px] truncate mt-1">${o.customerAddress}</div>
+                    </td>
+                    <td class="p-5 text-sm text-stone-600 max-w-[300px] truncate italic" title="${itemsListStr}">${itemsListStr}</td>
+                    <td class="p-5 font-serif text-lg text-brand-dark">₹${o.total.toFixed(2)}</td>
+                    <td class="p-5 text-xs text-stone-400 tracking-widest uppercase">${timeStr}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderAdminReservations(reservations) {
+            const tbody = document.getElementById('admin-reservations-list');
+            if (reservations.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-stone-500 font-serif text-xl">No upcoming reservations.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = reservations.map(r => {
+                const requestedDate = new Date(`${r.date}T${r.time}`).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                const bookedOn = new Date(r.timestamp).toLocaleDateString();
+                
+                return `
+                <tr class="hover:bg-stone-50 transition-colors duration-200 border-b border-stone-100">
+                    <td class="p-5 text-xs font-mono text-stone-400 tracking-wider">#${r.id.substring(0,6)}</td>
+                    <td class="p-5">
+                        <div class="font-medium text-brand-dark">${r.name}</div>
+                        <div class="text-xs text-stone-500 mt-1">${r.phone}</div>
+                    </td>
+                    <td class="p-5 text-sm text-stone-600">${requestedDate}</td>
+                    <td class="p-5 font-serif text-lg text-brand-dark">${r.guests}</td>
+                    <td class="p-5 text-xs text-stone-500 italic max-w-[200px] truncate" title="${r.notes}">${r.notes || '-'}</td>
+                    <td class="p-5 text-xs text-stone-400 tracking-widest uppercase">${bookedOn}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // --- Actions ---
+        window.addToCart = (itemId) => {
+            const item = menuItems.find(m => m.id === itemId);
+            if (!cart[itemId]) {
+                cart[itemId] = { item, qty: 1 };
+            } else {
+                cart[itemId].qty++;
+            }
+            updateCartUI();
+            showToast(`Added ${item.name} to order`, '🛒');
+        };
+
+        window.removeFromCart = (itemId) => {
+            if (cart[itemId]) {
+                delete cart[itemId];
+                updateCartUI();
+            }
+        };
+
+        function handleCheckout(e) {
+            e.preventDefault();
+            if (Object.keys(cart).length === 0) return;
+
+            const name = document.getElementById('cust-name').value;
+            const address = document.getElementById('cust-address').value;
+            const subtotal = Object.values(cart).reduce((sum, c) => sum + (c.item.price * c.qty), 0);
+            const total = subtotal + 50.00;
+            const submitBtn = e.target.querySelector('button');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Processing...";
+
+            // Simulate database save locally
+            setTimeout(() => {
+                const newOrder = {
+                    id: Math.random().toString(36).substring(2, 10),
+                    customerName: name,
+                    customerAddress: address,
+                    items: JSON.stringify(cart),
+                    total: total,
+                    status: 'Pending',
+                    timestamp: Date.now()
+                };
+                
+                ordersDB.unshift(newOrder); // Add to local DB array
+                localStorage.setItem('gg_orders', JSON.stringify(ordersDB)); // Persist Order
+                renderAdminOrders(ordersDB); // Update Admin UI instantly
+                
+                cart = {};
+                updateCartUI();
+                e.target.reset();
+                showToast("Order placed successfully.", "✨");
+                window.switchTab('home');
+                
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Confirm Order";
+            }, 600);
+        }
+
+        function handleReviewSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('rev-name').value;
+            const rating = parseInt(document.getElementById('rev-rating').value);
+            const text = document.getElementById('rev-text').value;
+            const submitBtn = e.target.querySelector('button');
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting...";
+
+            setTimeout(() => {
+                const newReview = {
+                    id: Math.random().toString(36).substring(2, 10),
+                    author: name,
+                    rating: rating,
+                    text: text,
+                    timestamp: Date.now()
+                };
+                
+                reviewsDB.unshift(newReview);
+                localStorage.setItem('gg_reviews', JSON.stringify(reviewsDB)); // Persist Review
+                renderReviewsList(reviewsDB);
+                
+                e.target.reset();
+                updateStarSelection(5);
+                showToast("Review published.", "⭐");
+                
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Review";
+            }, 500);
+        }
+
+        function handleReservationSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('res-name').value;
+            const phone = document.getElementById('res-phone').value;
+            const date = document.getElementById('res-date').value;
+            const time = document.getElementById('res-time').value;
+            const guests = document.getElementById('res-guests').value;
+            const notes = document.getElementById('res-notes').value;
+            const submitBtn = e.target.querySelector('button');
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Reserving...";
+
+            setTimeout(() => {
+                const newRes = {
+                    id: Math.random().toString(36).substring(2, 10),
+                    name, phone, date, time, guests, notes,
+                    status: 'Confirmed',
+                    timestamp: Date.now()
+                };
+                
+                reservationsDB.unshift(newRes);
+                localStorage.setItem('gg_reservations', JSON.stringify(reservationsDB)); // Persist Reservation
+                renderAdminReservations(reservationsDB);
+                
+                e.target.reset();
+                showToast("Table reserved successfully.", "🥂");
+                
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Request Reservation";
+            }, 600);
+        }
+
+        // --- UI Interactions ---
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            // Small delay to allow CSS animation to restart
+            setTimeout(() => {
+                targetTab.classList.add('active');
+            }, 50);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.toggleMobileMenu = () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        };
+
+        function attachEventListeners() {
+            document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+            document.getElementById('checkout-form').addEventListener('submit', handleCheckout);
+            document.getElementById('review-form').addEventListener('submit', handleReviewSubmit);
+            document.getElementById('reservation-form').addEventListener('submit', handleReservationSubmit);
+
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    const val = parseInt(e.target.getAttribute('data-val'));
+                    updateStarSelection(val);
+                });
+            });
+        }
+
+        function updateStarSelection(val) {
+            document.getElementById('rev-rating').value = val;
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((s, idx) => {
+                if (idx < val) {
+                    s.classList.add('selected', 'text-brand-gold');
+                    s.classList.remove('text-stone-300');
+                } else {
+                    s.classList.remove('selected', 'text-brand-gold');
+                    s.classList.add('text-stone-300');
+                }
+            });
+        }
+
+        // --- Admin Logic ---
+        window.openAdminModal = () => {
+            if (isAdmin) {
+                window.switchTab('admin');
+                return;
+            }
+            const modal = document.getElementById('admin-modal');
+            const content = document.getElementById('admin-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            document.getElementById('admin-pin').focus();
+        };
+
+        window.closeAdminModal = () => {
+            const modal = document.getElementById('admin-modal');
+            const content = document.getElementById('admin-modal-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('admin-pin').value = '';
+                document.getElementById('admin-error').classList.add('hidden');
+            }, 300);
+        };
+
+        window.verifyAdmin = () => {
+            const pin = document.getElementById('admin-pin').value;
+            if (pin === '9999') {
+                isAdmin = true;
+                closeAdminModal();
+                showToast("Access granted.", "🔑");
+                setTimeout(() => window.switchTab('admin'), 300);
+            } else {
+                document.getElementById('admin-error').classList.remove('hidden');
+            }
+        };
+
+        window.logoutAdmin = () => {
+            isAdmin = false;
+            window.switchTab('home');
+            showToast("Session terminated.", "🔒");
+        };
+
+        document.getElementById('admin-pin')?.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') window.verifyAdmin();
+        });
+
+        // --- Utilities ---
+        let toastTimeout;
+        window.showToast = (msg, icon = '✨') => {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').innerText = icon;
+            
+            clearTimeout(toastTimeout);
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        };
+
+        // Start App
+        initApp();
+
+    </script>
+</body>
+</html>
